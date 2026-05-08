@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: multiplayer-texnique
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: NODE_ENV
+        value: production

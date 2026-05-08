@@ -1,6 +1,6 @@
 # TeXnique Leagues
 
-A static TeX practice website with a landing screen, working local login, named leagues, a locked Euler Circle league, and a large advanced problem database.
+A TeX practice website with local login, named leagues, a locked Euler Circle league, ranked runs, live rooms, and a large advanced problem database.
 
 ## Run Locally
 
@@ -10,7 +10,7 @@ npm start
 
 Then open http://127.0.0.1:4173.
 
-The hosted GitHub Pages app is static and uses browser storage for login/progress. The local Node server remains only as a tiny static server/API sandbox.
+The local Node server serves the app and powers live multiplayer rooms.
 
 ## Leagues
 
@@ -37,11 +37,28 @@ Live 1v1 and group rooms work when the local Node server is running:
 npm start
 ```
 
-Open the served URL, sign in, use the Multiplayer tab, and share the room code. GitHub Pages is static, so it can host practice, login, progress, league leaderboards, and the database, but it cannot run the live room server by itself.
+Open the served URL, sign in, use the Multiplayer tab, and share the room code.
+
+## Deploy To Render
+
+This repo includes `render.yaml`, so Render can deploy the live Node server and static frontend together.
+
+1. Push this repo to GitHub.
+2. In Render, choose **New +** -> **Blueprint**.
+3. Connect `stringchees/multiplayer-texnique`.
+4. Render will read `render.yaml` and create the `multiplayer-texnique` web service.
+5. After deploy, use the Render URL for the full app and live rooms.
+
+The service uses:
+
+- Build command: `npm install`
+- Start command: `npm start`
+- Host: `0.0.0.0`
+- Port: Render's `PORT` environment variable
 
 ## Deploy To GitHub Pages
 
-The static site is published from the `gh-pages` branch. In GitHub, open `Settings -> Pages`, set source to `Deploy from a branch`, and choose `gh-pages` / `/root`.
+GitHub Pages can host the static practice app, but not live rooms. The static site is published from the `gh-pages` branch. In GitHub, open `Settings -> Pages`, set source to `Deploy from a branch`, and choose `gh-pages` / `/root`.
 
 ```sh
 git init

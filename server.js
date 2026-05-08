@@ -6,7 +6,7 @@ const path = require("path");
 const { createProblemBank, LEAGUES } = require("./public/problem-bank.js");
 
 const PORT = Number(process.env.PORT || 4173);
-const HOST = process.env.HOST || "127.0.0.1";
+const HOST = process.env.HOST || (process.env.RENDER ? "0.0.0.0" : "127.0.0.1");
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PROBLEMS = createProblemBank();
 const problemsById = new Map(PROBLEMS.map((problem) => [problem.id, problem]));

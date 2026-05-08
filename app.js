@@ -12,6 +12,7 @@ const keys = {
 
 const blankRun = () => ({
   leagueId: "leibniz",
+  mode: "practice",
   problemIds: [],
   index: 0,
   score: 0,
@@ -50,6 +51,7 @@ const elements = {
   eulerPassword: document.querySelector("#euler-password"),
   unlockEuler: document.querySelector("#unlock-euler"),
   practiceStart: document.querySelector("#practice-start"),
+  rankedStart: document.querySelector("#ranked-start"),
   leagueLabel: document.querySelector("#league-label"),
   problemTitle: document.querySelector("#problem-title"),
   problemPretty: document.querySelector("#problem-pretty"),
@@ -96,6 +98,7 @@ function emptyProfile() {
     leagueWins: {},
     leagueBest: {},
     history: [],
+    practiceHistory: [],
     unlockedEuler: false,
     activeRun: null
   };
@@ -146,6 +149,7 @@ function serializeRun() {
   }
   return {
     leagueId: state.run.leagueId,
+    mode: state.run.mode,
     problemIds: state.run.problemIds,
     index: state.run.index,
     score: state.run.score,
@@ -265,8 +269,9 @@ function chooseProblemIds(leagueId, count = 18) {
     .map((item) => item.problem.id);
 }
 
-function startPractice() {
-  const league = currentLeague();
+function startRun(mode, leagueId = state.selectedLeague) {
+  const league = getLeague(leagueId);
+  state.selectedLeague = league.id;
   if (!isLeagueUnlocked(league)) {
     setFeedback("Euler Circle is locked. Enter eulercircle to unlock it.", false);
     elements.eulerPassword.focus();
@@ -275,18 +280,28 @@ function startPractice() {
 
   state.run = {
     leagueId: league.id,
+    mode,
     problemIds: chooseProblemIds(league.id, league.id === "euler-circle" ? 24 : 18),
     index: 0,
     score: 0,
     streak: 0,
     startedAt: Date.now()
   };
-  setFeedback("Run started. Enter exact TeX for the displayed expression.", true);
+  renderLeagueSelect();
+  setFeedback(`${mode === "ranked" ? "Ranked run" : "Practice set"} started. Enter exact TeX for the displayed expression.`, true);
   elements.answerInput.value = "";
   elements.answerInput.focus();
   saveActiveProfile();
   renderProblem();
   renderStats();
+}
+
+function startPractice() {
+  startRun("practice");
+}
+
+function startRankedRun(leagueId = state.selectedLeague) {
+  startRun("ranked", leagueId);
 }
 
 function finishRun() {
@@ -296,6 +311,7 @@ function finishRun() {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     leagueId: league.id,
     leagueName: league.name,
+    mode: state.run.mode,
     score: finalScore,
     solved: state.run.index,
     total: state.run.problemIds.length,
@@ -303,16 +319,20 @@ function finishRun() {
     durationMs: Date.now() - state.run.startedAt
   };
 
-  state.profile.bestScore = Math.max(state.profile.bestScore || 0, finalScore);
-  state.profile.leagueBest[league.id] = Math.max(state.profile.leagueBest[league.id] || 0, finalScore);
   state.profile.runs += 1;
-  state.profile.xp += finalScore + league.tiers.reduce((sum, tier) => sum + tier * 10, 0);
-  state.profile.leagueWins[league.id] = (state.profile.leagueWins[league.id] || 0) + 1;
-  state.profile.history = [completed, ...(state.profile.history || [])].slice(0, 120);
+  state.profile.xp += Math.floor(finalScore / (state.run.mode === "ranked" ? 1 : 3));
+  if (state.run.mode === "ranked") {
+    state.profile.bestScore = Math.max(state.profile.bestScore || 0, finalScore);
+    state.profile.leagueBest[league.id] = Math.max(state.profile.leagueBest[league.id] || 0, finalScore);
+    state.profile.leagueWins[league.id] = (state.profile.leagueWins[league.id] || 0) + 1;
+    state.profile.history = [completed, ...(state.profile.history || [])].slice(0, 120);
+  } else {
+    state.profile.practiceHistory = [completed, ...(state.profile.practiceHistory || [])].slice(0, 60);
+  }
   state.run = blankRun();
   state.profile.activeRun = null;
   saveActiveProfile();
-  setFeedback(`Run complete: ${finalScore} points in ${formatClock(completed.durationMs)}.`, true);
+  setFeedback(`${completed.mode === "ranked" ? "Ranked run" : "Practice set"} complete: ${finalScore} points in ${formatClock(completed.durationMs)}.`, true);
   renderProblem();
   renderStats();
   renderLeagues();
@@ -323,7 +343,7 @@ function handleAnswer(event) {
   event.preventDefault();
   const problem = activeProblem();
   if (!problem) {
-    setFeedback("Start a practice run first.", false);
+    setFeedback("Start a practice set or ranked run first.", false);
     return;
   }
 
@@ -359,9 +379,9 @@ function renderProblem() {
   elements.leagueLabel.textContent = league.name;
 
   if (!problem) {
-    elements.problemTitle.textContent = isLeagueUnlocked(league) ? "Start a run" : "Locked league";
+    elements.problemTitle.textContent = isLeagueUnlocked(league) ? "Start a set" : "Locked league";
     elements.problemPretty.textContent = isLeagueUnlocked(league)
-      ? "Select a league and start a practice set."
+      ? "Select a league and start practice, or use Ranked Run for leaderboard scoring."
       : "Euler Circle requires the password eulercircle.";
     elements.problemPrompt.textContent = "Problems are sampled from the selected league tiers.";
     elements.problemSource.textContent = "";
@@ -374,7 +394,7 @@ function renderProblem() {
     elements.answerInput.placeholder = problem.answer;
   }
 
-  elements.runProgress.textContent = `${state.run.index}/${state.run.problemIds.length}`;
+  elements.runProgress.textContent = `${state.run.mode === "ranked" ? "ranked" : "practice"} · ${state.run.index}/${state.run.problemIds.length}`;
 }
 
 function renderStats() {
@@ -471,7 +491,10 @@ function renderLeagueDetail() {
         <p class="eyebrow">League Detail</p>
         <h3>${league.name}</h3>
       </div>
-      <button class="secondary-action" id="practice-detail-league" type="button">Practice ${league.badge}</button>
+      <div class="league-actions">
+        <button class="secondary-action" id="practice-detail-league" type="button">Practice ${league.badge}</button>
+        <button class="primary-action" id="ranked-detail-league" type="button">Start Ranked Run</button>
+      </div>
     </div>
     <div class="detail-grid">
       <section>
@@ -523,11 +546,20 @@ function renderLeagueDetail() {
     </div>
   `;
 
-  document.querySelector("#practice-detail-league").addEventListener("click", () => {
+  const practiceDetail = elements.leagueDetail.querySelector("#practice-detail-league");
+  const rankedDetail = elements.leagueDetail.querySelector("#ranked-detail-league");
+
+  practiceDetail?.addEventListener("click", () => {
     state.selectedLeague = league.id;
     renderLeagueSelect();
     setTab("practice");
     startPractice();
+  });
+  rankedDetail?.addEventListener("click", () => {
+    state.selectedLeague = league.id;
+    renderLeagueSelect();
+    setTab("practice");
+    startRankedRun(league.id);
   });
 }
 
@@ -856,6 +888,7 @@ function bindEvents() {
   });
   elements.unlockEuler.addEventListener("click", unlockEuler);
   elements.practiceStart.addEventListener("click", startPractice);
+  elements.rankedStart.addEventListener("click", () => startRankedRun());
   elements.answerForm.addEventListener("submit", handleAnswer);
   elements.hintButton.addEventListener("click", showHint);
   elements.resetProfile.addEventListener("click", resetProgress);

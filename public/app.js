@@ -306,6 +306,11 @@ function normalize(value) {
 
   for (let pass = 0; pass < 3; pass += 1) {
     normalized = normalized
+      .replace(/\\operatorname\*?\{([^{}]+)\}/g, "$1")
+      .replace(/\\(?:mathrm|textrm|text|mathnormal)\{([^{}]+)\}/g, "$1")
+      .replace(/\\(?:sin|cos|tan|log|ln|lim|det|ker|dim|deg|max|min|sup|inf|gcd|hom|tr)\b/g, (operator) =>
+        operator.slice(1)
+      )
       .replace(/\\frac\{([^{}]+)\}([A-Za-z0-9])/g, "\\frac{$1}{$2}")
       .replace(/\\frac([A-Za-z0-9])\{([^{}]+)\}/g, "\\frac{$1}{$2}")
       .replace(/\\frac([A-Za-z0-9])([A-Za-z0-9])/g, "\\frac{$1}{$2}")

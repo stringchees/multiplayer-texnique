@@ -451,6 +451,12 @@ p {
   gap: 12px;
 }
 
+.league-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .league-detail h3 {
   font-size: 1.6rem;
 }

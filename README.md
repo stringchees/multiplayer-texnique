@@ -21,6 +21,8 @@ The hosted GitHub Pages app is static and uses browser storage for login/progres
 - Euclid League
 - Euler Circle, locked by password
 
+Practice sets are unranked. Use each league's **Start Ranked Run** button to record leaderboard scores.
+
 Euler Circle password for this build:
 
 ```text
@@ -39,7 +41,7 @@ Open the served URL, sign in, use the Multiplayer tab, and share the room code. 
 
 ## Deploy To GitHub Pages
 
-This repo includes `.github/workflows/pages.yml`. Push the repo to GitHub with GitHub Pages enabled for Actions, and the workflow deploys the `public/` folder as the website.
+The static site is published from the `gh-pages` branch. In GitHub, open `Settings -> Pages`, set source to `Deploy from a branch`, and choose `gh-pages` / `/root`.
 
 ```sh
 git init

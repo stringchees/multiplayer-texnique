@@ -19,9 +19,9 @@
           </div>
         </div>
         <div class="landing-board" aria-hidden="true">
-          <span>\int_{\partial M}\omega=\int_M d\omega</span>
-          <span>E_2^{p,q}\Rightarrow H^{p+q}</span>
-          <span>\zeta(s)=\prod_p(1-p^{-s})^{-1}</span>
+          <span>\(\displaystyle \int_{\partial M}\omega=\int_M d\omega\)</span>
+          <span>\(\displaystyle E_2^{p,q}\Rightarrow H^{p+q}\)</span>
+          <span>\(\displaystyle \zeta(s)=\prod_p(1-p^{-s})^{-1}\)</span>
         </div>
       </section>
 
@@ -52,7 +52,7 @@
               <button class="tab-button" data-tab="leagues" type="button">Leagues</button>
               <button class="tab-button" data-tab="database" type="button">Database</button>
             </nav>
-            <button class="secondary-action" id="logout-button" type="button">Log Out</button>
+            <button class="secondary-action logout-action" id="logout-button" type="button">Log Out</button>
           </div>
         </header>
 
@@ -175,6 +175,18 @@
       </section>
     </main>
 
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        },
+        svg: {
+          fontCache: "global"
+        }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <script src="problem-bank.js"></script>
     <script src="app.js"></script>
   </body>

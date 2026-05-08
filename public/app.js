@@ -112,7 +112,7 @@ function migrateProfile(profile) {
 
 function loadUsers() {
   try {
-    return JSON.parse(localStorage.getItem(keys.users)) || {};
+    return migrateUsers(JSON.parse(localStorage.getItem(keys.users)) || {});
   } catch {
     return {};
   }
@@ -120,6 +120,34 @@ function loadUsers() {
 
 function saveUsers(users) {
   localStorage.setItem(keys.users, JSON.stringify(users));
+}
+
+function canonicalUsername(username) {
+  return username.trim().toLowerCase();
+}
+
+function migrateUsers(users) {
+  let changed = false;
+  const migrated = {};
+
+  Object.entries(users || {}).forEach(([name, user]) => {
+    const displayName = String(user.displayName || name).trim();
+    const key = canonicalUsername(displayName);
+    if (!key || migrated[key]) {
+      return;
+    }
+    migrated[key] = {
+      displayName,
+      password: user.password || null,
+      profile: migrateProfile(user.profile)
+    };
+    changed = changed || key !== name || !user.displayName || !user.profile;
+  });
+
+  if (changed) {
+    saveUsers(migrated);
+  }
+  return migrated;
 }
 
 function encodePassword(password) {
@@ -138,10 +166,11 @@ function saveActiveProfile() {
   }
 
   const users = loadUsers();
-  if (!users[state.activeUser]) {
+  const userKey = canonicalUsername(state.activeUser);
+  if (!users[userKey]) {
     return;
   }
-  users[state.activeUser].profile = state.profile;
+  users[userKey].profile = state.profile;
   saveUsers(users);
 }
 
@@ -179,25 +208,31 @@ function showScreen(id) {
 
 function login(username, password) {
   const cleanName = username.trim();
-  if (!cleanName) {
+  const userKey = canonicalUsername(cleanName);
+  if (!userKey) {
     return { ok: false, message: "Enter a username." };
+  }
+  if (!password) {
+    return { ok: false, message: "Enter this account's password." };
   }
 
   const users = loadUsers();
   const hash = encodePassword(password);
-  const existing = users[cleanName];
+  const existing = users[userKey];
 
   if (!existing) {
-    users[cleanName] = { password: hash, profile: emptyProfile() };
+    users[userKey] = { displayName: cleanName, password: hash, profile: emptyProfile() };
     saveUsers(users);
+  } else if (!existing.password) {
+    return { ok: false, message: "This saved account needs a new password. Create a different username." };
   } else if (existing.password !== hash) {
     return { ok: false, message: "That password does not match this local account." };
   }
 
-  state.activeUser = cleanName;
-  state.profile = migrateProfile(users[cleanName].profile);
+  state.activeUser = users[userKey].displayName || cleanName;
+  state.profile = migrateProfile(users[userKey].profile);
   restoreRun(state.profile.activeRun);
-  localStorage.setItem(keys.session, cleanName);
+  localStorage.setItem(keys.session, userKey);
   renderApp();
   showScreen("app-screen");
   return { ok: true, message: existing ? "Welcome back." : "Account created." };
@@ -216,10 +251,10 @@ function continueAsGuest() {
 }
 
 function restoreSession() {
-  const username = localStorage.getItem(keys.session);
+  const username = canonicalUsername(localStorage.getItem(keys.session) || "");
   const users = loadUsers();
   if (username && users[username]) {
-    state.activeUser = username;
+    state.activeUser = users[username].displayName || username;
     state.profile = migrateProfile(users[username].profile);
     restoreRun(state.profile.activeRun);
     renderApp();
@@ -395,6 +430,22 @@ function activeProblem() {
   return problemsById.get(state.run.problemIds[state.run.index]) || null;
 }
 
+function mathText(tex, display = true) {
+  return display ? `\\[${tex}\\]` : `\\(${tex}\\)`;
+}
+
+function queueTypeset(elementsToRender) {
+  const mathJax = window.MathJax;
+  if (!mathJax) {
+    return;
+  }
+  if (typeof mathJax.typesetPromise !== "function") {
+    mathJax.startup?.promise?.then(() => queueTypeset(elementsToRender)).catch(() => {});
+    return;
+  }
+  mathJax.typesetPromise(elementsToRender).catch(() => {});
+}
+
 function renderProblem() {
   const league = currentLeague();
   const problem = activeProblem();
@@ -410,13 +461,14 @@ function renderProblem() {
     elements.answerInput.placeholder = "Type TeX";
   } else {
     elements.problemTitle.textContent = problem.category;
-    elements.problemPretty.textContent = problem.pretty;
-    elements.problemPrompt.textContent = `${problem.prompt}. Tier ${problem.tier}.`;
+    elements.problemPretty.textContent = mathText(problem.answer);
+    elements.problemPrompt.textContent = `${problem.title}. Tier ${problem.tier}.`;
     elements.problemSource.textContent = `Expected notation family: ${problem.category}`;
-    elements.answerInput.placeholder = problem.answer;
+    elements.answerInput.placeholder = state.run.mode === "ranked" ? "Type TeX" : problem.answer;
   }
 
   elements.runProgress.textContent = `${state.run.mode === "ranked" ? "ranked" : "practice"} · ${state.run.index}/${state.run.problemIds.length}`;
+  queueTypeset([elements.problemPretty]);
 }
 
 function renderStats() {
@@ -454,7 +506,7 @@ function leaderboardForLeague(leagueId) {
     const profile = migrateProfile(user.profile);
     const leagueRuns = (profile.history || []).filter((run) => run.leagueId === leagueId);
     return {
-      name,
+      name: user.displayName || name,
       best: profile.leagueBest?.[leagueId] || 0,
       runs: leagueRuns.length,
       last: leagueRuns[0]?.completedAt || null
@@ -570,11 +622,12 @@ function renderLeagueDetail() {
       <section>
         <h4>Sample Notation</h4>
         <div class="example-list">
-          ${examples.map((problem) => `<code>${escapeHtml(problem.answer)}</code>`).join("")}
+          ${examples.map((problem) => `<div class="math-example">${escapeHtml(mathText(problem.answer, false))}</div>`).join("")}
         </div>
       </section>
     </div>
   `;
+  queueTypeset([elements.leagueDetail]);
 
   const practiceDetail = elements.leagueDetail.querySelector("#practice-detail-league");
   const rankedDetail = elements.leagueDetail.querySelector("#ranked-detail-league");
@@ -619,13 +672,14 @@ function renderDatabase() {
             <span class="chip">Tier ${problem.tier}</span>
             <span class="chip">${escapeHtml(problem.category)}</span>
           </div>
-          <h3>${escapeHtml(problem.pretty)}</h3>
+          <h3 class="database-math">${escapeHtml(mathText(problem.answer, false))}</h3>
           <code>${escapeHtml(problem.answer)}</code>
           <p>${escapeHtml(problem.hint)}</p>
         </article>
       `
     )
     .join("");
+  queueTypeset([elements.databaseList]);
 }
 
 function renderApp() {
@@ -884,8 +938,8 @@ function renderRoom() {
   elements.multiProgress.textContent = `${player?.currentIndex || 0}/${state.room.problemIds.length || 0}`;
 
   if (problem) {
-    elements.multiPretty.textContent = problem.pretty;
-    elements.multiPrompt.textContent = `${problem.prompt}. Tier ${problem.tier}.`;
+    elements.multiPretty.textContent = mathText(problem.answer);
+    elements.multiPrompt.textContent = `${problem.title}. Tier ${problem.tier}.`;
     elements.multiSource.textContent = `Expected notation family: ${problem.category}`;
     elements.multiAnswerInput.placeholder = problem.answer;
   } else if (state.room.phase === "finished") {
@@ -897,6 +951,7 @@ function renderRoom() {
     elements.multiPrompt.textContent = "Players in the room will appear below.";
     elements.multiSource.textContent = "";
   }
+  queueTypeset([elements.multiPretty]);
 
   elements.roomList.innerHTML = state.room.players
     .map(

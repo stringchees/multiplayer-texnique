@@ -192,6 +192,7 @@ p {
 
 .topbar-actions {
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .tabs {
@@ -246,6 +247,15 @@ button:disabled {
   color: var(--ink);
   background: var(--paper);
   border: 1px solid var(--line);
+}
+
+.logout-action {
+  white-space: nowrap;
+}
+
+.logout-action:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
 }
 
 .danger-action {
@@ -331,6 +341,13 @@ button:disabled {
   font-size: clamp(2.2rem, 6vw, 5.8rem);
   line-height: 1.06;
   overflow-wrap: anywhere;
+}
+
+.problem-pretty mjx-container {
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
 }
 
 #problem-prompt,
@@ -520,12 +537,24 @@ button:disabled {
 }
 
 .example-list code,
-.database-card code {
+.database-card code,
+.math-example {
   display: block;
   padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfaf7;
+}
+
+.math-example,
+.database-math {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.math-example mjx-container,
+.database-math mjx-container {
+  margin: 0;
 }
 
 .database-tools {

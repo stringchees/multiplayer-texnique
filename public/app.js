@@ -17,6 +17,8 @@ const blankRun = () => ({
   index: 0,
   score: 0,
   streak: 0,
+  currentMisses: 0,
+  skipped: 0,
   startedAt: null
 });
 
@@ -185,6 +187,8 @@ function serializeRun() {
     index: state.run.index,
     score: state.run.score,
     streak: state.run.streak,
+    currentMisses: state.run.currentMisses || 0,
+    skipped: state.run.skipped || 0,
     startedAt: state.run.startedAt
   };
 }
@@ -333,6 +337,8 @@ function startRun(mode, leagueId = null) {
     index: 0,
     score: 0,
     streak: 0,
+    currentMisses: 0,
+    skipped: 0,
     startedAt: Date.now()
   };
   renderLeagueSelect();
@@ -362,7 +368,7 @@ function finishRun(endedEarly = false) {
     leagueName: league?.name || "Random Problems",
     mode: state.run.mode,
     score: finalScore,
-    solved: state.run.index,
+    solved: Math.max(0, state.run.index - (state.run.skipped || 0)),
     total: state.run.problemIds.length,
     endedEarly,
     completedAt: new Date().toISOString(),
@@ -415,6 +421,7 @@ function handleAnswer(event) {
     state.run.streak += 1;
     state.run.score += 125 + state.run.streak * 20 + problem.tier * 12;
     state.run.index += 1;
+    state.run.currentMisses = 0;
     setFeedback("Correct.", true);
     if (state.run.index >= state.run.problemIds.length) {
       elements.answerInput.value = "";
@@ -424,7 +431,30 @@ function handleAnswer(event) {
   } else {
     state.run.streak = 0;
     state.run.score = Math.max(0, state.run.score - 25);
-    setFeedback(state.run.mode === "ranked" ? "Incorrect. No hints are shown during ranked runs." : `Incorrect. ${problem.hint}`, false);
+    state.run.currentMisses = (state.run.currentMisses || 0) + 1;
+    if (state.run.currentMisses >= 5) {
+      state.run.index += 1;
+      state.run.skipped = (state.run.skipped || 0) + 1;
+      state.run.currentMisses = 0;
+      elements.answerInput.value = "";
+      if (state.run.index >= state.run.problemIds.length) {
+        finishRun();
+        return;
+      }
+      setFeedback("Skipped after 5 incorrect attempts.", false);
+      saveActiveProfile();
+      renderProblem();
+      renderStats();
+      renderRunControls();
+      return;
+    }
+    const attemptsLeft = 5 - state.run.currentMisses;
+    setFeedback(
+      state.run.mode === "ranked"
+        ? `Incorrect. ${attemptsLeft} attempt${attemptsLeft === 1 ? "" : "s"} before skip.`
+        : `Incorrect. ${problem.hint} ${attemptsLeft} attempt${attemptsLeft === 1 ? "" : "s"} before skip.`,
+      false
+    );
   }
 
   elements.answerInput.value = "";

@@ -45,12 +45,15 @@
             <p class="eyebrow">Signed in as <span id="active-user">Guest</span></p>
             <h1>TeXnique Leagues</h1>
           </div>
-          <nav class="tabs" aria-label="Sections">
-            <button class="tab-button is-active" data-tab="practice" type="button">Practice</button>
-            <button class="tab-button" data-tab="multiplayer" type="button">Multiplayer</button>
-            <button class="tab-button" data-tab="leagues" type="button">Leagues</button>
-            <button class="tab-button" data-tab="database" type="button">Database</button>
-          </nav>
+          <div class="topbar-actions">
+            <nav class="tabs" aria-label="Sections">
+              <button class="tab-button is-active" data-tab="practice" type="button">Practice</button>
+              <button class="tab-button" data-tab="multiplayer" type="button">Multiplayer</button>
+              <button class="tab-button" data-tab="leagues" type="button">Leagues</button>
+              <button class="tab-button" data-tab="database" type="button">Database</button>
+            </nav>
+            <button class="secondary-action" id="logout-button" type="button">Log Out</button>
+          </div>
         </header>
 
         <section class="tab-panel is-active" id="practice-panel">
@@ -98,7 +101,6 @@
                 <div><span>Best</span><strong id="best-value">0</strong></div>
                 <div><span>Bank</span><strong id="bank-count">0</strong></div>
               </div>
-              <button class="text-action" id="logout-button" type="button">Log Out</button>
             </aside>
           </div>
         </section>
@@ -134,6 +136,7 @@
               <label for="room-code">Room code</label>
               <div class="inline-row">
                 <input id="room-code" type="text" maxlength="8" placeholder="AUTO" />
+                <button class="secondary-action" id="new-room-code" type="button">New</button>
                 <button class="secondary-action" id="join-room" type="button">Join</button>
               </div>
               <button class="primary-action wide" id="start-room" type="button">Start Live Race</button>

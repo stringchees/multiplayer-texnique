@@ -47,6 +47,7 @@
           </div>
           <nav class="tabs" aria-label="Sections">
             <button class="tab-button is-active" data-tab="practice" type="button">Practice</button>
+            <button class="tab-button" data-tab="multiplayer" type="button">Multiplayer</button>
             <button class="tab-button" data-tab="leagues" type="button">Leagues</button>
             <button class="tab-button" data-tab="database" type="button">Database</button>
           </nav>
@@ -68,6 +69,7 @@
               <div class="problem-card">
                 <div id="problem-pretty" class="problem-pretty">Choose a league, then start practice.</div>
                 <p id="problem-prompt">The prompt appears here.</p>
+                <code id="problem-source" class="problem-source"></code>
               </div>
               <form class="answer-row" id="answer-form">
                 <input id="answer-input" type="text" autocomplete="off" spellcheck="false" placeholder="Type TeX" />
@@ -99,6 +101,45 @@
           </div>
         </section>
 
+        <section class="tab-panel" id="multiplayer-panel">
+          <div class="practice-layout">
+            <section class="practice-main">
+              <div class="practice-head">
+                <div>
+                  <p class="eyebrow" id="room-phase">Local live rooms</p>
+                  <h2 id="multi-title">Join a room</h2>
+                </div>
+                <div class="clock">
+                  <span id="multi-clock">00:00</span>
+                  <small id="multi-progress">0/0</small>
+                </div>
+              </div>
+              <div class="problem-card">
+                <div id="multi-pretty" class="problem-pretty">1v1 or group races run when the Node server is online.</div>
+                <p id="multi-prompt">Use the same room code to play together.</p>
+                <code id="multi-source" class="problem-source"></code>
+              </div>
+              <form class="answer-row" id="multi-answer-form">
+                <input id="multi-answer-input" type="text" autocomplete="off" spellcheck="false" placeholder="Type TeX" />
+                <button class="primary-action" type="submit">Submit</button>
+              </form>
+              <p class="status-text" id="multi-feedback">GitHub Pages cannot host live rooms by itself; local server rooms are live.</p>
+            </section>
+
+            <aside class="side-panel">
+              <label for="room-name">Name</label>
+              <input id="room-name" type="text" maxlength="24" placeholder="Player" />
+              <label for="room-code">Room code</label>
+              <div class="inline-row">
+                <input id="room-code" type="text" maxlength="8" placeholder="AUTO" />
+                <button class="secondary-action" id="join-room" type="button">Join</button>
+              </div>
+              <button class="primary-action wide" id="start-room" type="button">Start Live Race</button>
+              <div class="room-list" id="room-list"></div>
+            </aside>
+          </div>
+        </section>
+
         <section class="tab-panel" id="leagues-panel">
           <div class="section-head">
             <div>
@@ -108,6 +149,7 @@
             <button class="secondary-action" id="reset-profile" type="button">Reset Progress</button>
           </div>
           <div class="league-grid" id="league-grid"></div>
+          <section class="league-detail" id="league-detail"></section>
         </section>
 
         <section class="tab-panel" id="database-panel">

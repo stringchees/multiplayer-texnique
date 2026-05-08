@@ -259,6 +259,7 @@ p {
 .practice-main,
 .side-panel,
 .league-card,
+.league-detail,
 .database-card {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -322,6 +323,13 @@ p {
   line-height: 1.45;
 }
 
+.problem-source {
+  min-height: 20px;
+  color: var(--accent-strong);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
 .answer-row {
   align-items: stretch;
 }
@@ -382,11 +390,20 @@ p {
 .league-card {
   display: grid;
   gap: 14px;
+  width: 100%;
   padding: 18px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .league-card.is-locked {
   border-color: #d7b4e8;
+}
+
+.league-card.is-selected {
+  outline: 3px solid rgba(47, 125, 114, 0.18);
+  border-color: var(--accent);
 }
 
 .league-top {
@@ -419,6 +436,68 @@ p {
   width: var(--progress);
   height: 100%;
   background: var(--meter);
+}
+
+.league-detail {
+  margin-top: 16px;
+  padding: 18px;
+}
+
+.league-detail-head,
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.league-detail h3 {
+  font-size: 1.6rem;
+}
+
+.league-detail h4 {
+  margin: 0 0 10px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.leaderboard-list,
+.example-list,
+.room-list {
+  display: grid;
+  gap: 8px;
+}
+
+.leaderboard-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.leaderboard-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.leaderboard-row strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-row small {
+  color: var(--muted);
+}
+
+.example-list code,
+.database-card code {
+  display: block;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf7;
 }
 
 .database-tools {
@@ -469,6 +548,7 @@ p {
   .landing-screen.is-active,
   .practice-layout,
   .league-grid,
+  .detail-grid,
   .database-list {
     grid-template-columns: 1fr;
   }

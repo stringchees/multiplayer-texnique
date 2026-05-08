@@ -7,7 +7,7 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function createExports() {
   "use strict";
 
-  const EULER_ACCESS_CODE = "euler1736";
+  const EULER_ACCESS_CODE = "eulercircle";
 
   const LEAGUES = [
     {

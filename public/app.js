@@ -296,11 +296,24 @@ function isLeagueUnlocked(league) {
 }
 
 function normalize(value) {
-  return String(value || "")
+  let normalized = String(value || "")
     .trim()
     .replace(/\s+/g, "")
+    .replace(/\\[dt]frac/g, "\\frac")
     .replace(/\\left/g, "")
-    .replace(/\\right/g, "");
+    .replace(/\\right/g, "")
+    .replace(/\\[,!;:]/g, "");
+
+  for (let pass = 0; pass < 3; pass += 1) {
+    normalized = normalized
+      .replace(/\\frac\{([^{}]+)\}([A-Za-z0-9])/g, "\\frac{$1}{$2}")
+      .replace(/\\frac([A-Za-z0-9])\{([^{}]+)\}/g, "\\frac{$1}{$2}")
+      .replace(/\\frac([A-Za-z0-9])([A-Za-z0-9])/g, "\\frac{$1}{$2}")
+      .replace(/\\sqrt([A-Za-z0-9])/g, "\\sqrt{$1}")
+      .replace(/([_^])\{([A-Za-z0-9])\}/g, "$1$2");
+  }
+
+  return normalized;
 }
 
 function isCorrect(problem, answer) {

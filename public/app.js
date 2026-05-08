@@ -949,7 +949,7 @@ function renderRoom() {
     elements.roomPhase.textContent = "Static hosting";
     elements.multiTitle.textContent = "Live server offline";
     elements.multiPretty.textContent = "Run npm start for live 1v1s and group rooms.";
-    elements.multiPrompt.textContent = "GitHub Pages serves the practice app; it cannot hold live room state.";
+    elements.multiPrompt.textContent = "Create or join a room to race together.";
     elements.multiSource.textContent = "";
     elements.multiProgress.textContent = "0/0";
     elements.roomList.innerHTML = `<p class="status-text">No room connection.</p>`;

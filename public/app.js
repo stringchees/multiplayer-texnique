@@ -302,8 +302,8 @@ function isCorrect(problem, answer) {
 }
 
 function chooseProblemIds(leagueId, count = 18) {
-  const league = getLeague(leagueId);
-  const pool = problems.filter((problem) => league.tiers.includes(problem.tier));
+  const league = leagueId ? getLeague(leagueId) : null;
+  const pool = league ? problems.filter((problem) => league.tiers.includes(problem.tier)) : randomProblemPool();
   return pool
     .map((problem) => ({ problem, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
@@ -311,19 +311,25 @@ function chooseProblemIds(leagueId, count = 18) {
     .map((item) => item.problem.id);
 }
 
-function startRun(mode, leagueId = state.selectedLeague) {
-  const league = getLeague(leagueId);
-  state.selectedLeague = league.id;
-  if (!isLeagueUnlocked(league)) {
+function randomProblemPool() {
+  return problems.filter((problem) => problem.tier < 6 || Boolean(state.profile?.unlockedEuler));
+}
+
+function startRun(mode, leagueId = null) {
+  const league = leagueId ? getLeague(leagueId) : null;
+  if (league) {
+    state.selectedLeague = league.id;
+  }
+  if (league && !isLeagueUnlocked(league)) {
     setFeedback("Euler Circle is locked. Enter eulercircle to unlock it.", false);
-    elements.eulerPassword.focus();
+    elements.eulerPassword?.focus();
     return;
   }
 
   state.run = {
-    leagueId: league.id,
+    leagueId: league?.id || "mixed",
     mode,
-    problemIds: chooseProblemIds(league.id, league.id === "euler-circle" ? 24 : 18),
+    problemIds: chooseProblemIds(league?.id || null, league?.id === "euler-circle" ? 24 : 18),
     index: 0,
     score: 0,
     streak: 0,
@@ -340,20 +346,20 @@ function startRun(mode, leagueId = state.selectedLeague) {
 }
 
 function startPractice() {
-  startRun("practice");
+  startRun("practice", null);
 }
 
-function startRankedRun(leagueId = state.selectedLeague) {
+function startRankedRun(leagueId = null) {
   startRun("ranked", leagueId);
 }
 
 function finishRun(endedEarly = false) {
-  const league = getLeague(state.run.leagueId);
+  const league = state.run.leagueId === "mixed" ? null : getLeague(state.run.leagueId);
   const finalScore = state.run.score;
   const completed = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    leagueId: league.id,
-    leagueName: league.name,
+    leagueId: league?.id || "mixed",
+    leagueName: league?.name || "Random Problems",
     mode: state.run.mode,
     score: finalScore,
     solved: state.run.index,
@@ -367,8 +373,10 @@ function finishRun(endedEarly = false) {
   state.profile.xp += Math.floor(finalScore / (state.run.mode === "ranked" ? 1 : 3));
   if (state.run.mode === "ranked") {
     state.profile.bestScore = Math.max(state.profile.bestScore || 0, finalScore);
-    state.profile.leagueBest[league.id] = Math.max(state.profile.leagueBest[league.id] || 0, finalScore);
-    state.profile.leagueWins[league.id] = (state.profile.leagueWins[league.id] || 0) + 1;
+    if (league) {
+      state.profile.leagueBest[league.id] = Math.max(state.profile.leagueBest[league.id] || 0, finalScore);
+      state.profile.leagueWins[league.id] = (state.profile.leagueWins[league.id] || 0) + 1;
+    }
     state.profile.history = [completed, ...(state.profile.history || [])].slice(0, 120);
   } else {
     state.profile.practiceHistory = [completed, ...(state.profile.practiceHistory || [])].slice(0, 60);
@@ -447,23 +455,21 @@ function queueTypeset(elementsToRender) {
 }
 
 function renderProblem() {
-  const league = currentLeague();
   const problem = activeProblem();
-  elements.leagueLabel.textContent = league.name;
+  const league = state.run.leagueId === "mixed" ? null : getLeague(state.run.leagueId || state.selectedLeague);
+  elements.leagueLabel.textContent = league?.name || "Random Problems";
 
   if (!problem) {
-    elements.problemTitle.textContent = isLeagueUnlocked(league) ? "Start a set" : "Locked league";
-    elements.problemPretty.textContent = isLeagueUnlocked(league)
-      ? "Select a league and start practice, or use Ranked Run for leaderboard scoring."
-      : "Euler Circle requires the password eulercircle.";
-    elements.problemPrompt.textContent = "Problems are sampled from the selected league tiers.";
+    elements.problemTitle.textContent = "Start a run";
+    elements.problemPretty.textContent = "Start a run.";
+    elements.problemPrompt.textContent = "";
     elements.problemSource.textContent = "";
     elements.answerInput.placeholder = "Type TeX";
   } else {
     elements.problemTitle.textContent = problem.category;
     elements.problemPretty.textContent = mathText(problem.answer);
-    elements.problemPrompt.textContent = `${problem.title}. Tier ${problem.tier}.`;
-    elements.problemSource.textContent = `Expected notation family: ${problem.category}`;
+    elements.problemPrompt.textContent = "";
+    elements.problemSource.textContent = "";
     elements.answerInput.placeholder = state.run.mode === "ranked" ? "Type TeX" : problem.answer;
   }
 

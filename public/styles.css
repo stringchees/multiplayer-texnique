@@ -191,11 +191,16 @@ p {
 }
 
 .topbar-actions {
+  flex: 0 0 auto;
   justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .tabs {
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   padding: 4px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -204,7 +209,7 @@ p {
 
 .tab-button {
   min-height: 38px;
-  padding: 0 13px;
+  padding: 0 10px;
   color: var(--muted);
   background: transparent;
   border: 0;
@@ -215,6 +220,23 @@ p {
 .tab-button.is-active {
   color: var(--paper);
   background: var(--ink);
+}
+
+.logout-action {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 10px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.logout-action:hover {
+  color: var(--bad);
+  background: #fff7f4;
 }
 
 .primary-action,
@@ -247,15 +269,6 @@ button:disabled {
   color: var(--ink);
   background: var(--paper);
   border: 1px solid var(--line);
-}
-
-.logout-action {
-  white-space: nowrap;
-}
-
-.logout-action:hover {
-  border-color: var(--accent);
-  color: var(--accent-strong);
 }
 
 .danger-action {
@@ -327,9 +340,9 @@ button:disabled {
 
 .problem-card {
   min-height: 310px;
-  display: grid;
-  align-content: center;
-  gap: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 28px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -359,6 +372,7 @@ button:disabled {
 }
 
 .problem-source {
+  display: none;
   min-height: 20px;
   color: var(--accent-strong);
   font-family: "SFMono-Regular", Consolas, monospace;
@@ -621,6 +635,11 @@ button:disabled {
   .tabs,
   .landing-actions {
     width: 100%;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    flex-direction: row;
   }
 
   .tab-button,

@@ -52,6 +52,7 @@ const elements = {
   unlockEuler: document.querySelector("#unlock-euler"),
   practiceStart: document.querySelector("#practice-start"),
   rankedStart: document.querySelector("#ranked-start"),
+  endRun: document.querySelector("#end-run"),
   leagueLabel: document.querySelector("#league-label"),
   problemTitle: document.querySelector("#problem-title"),
   problemPretty: document.querySelector("#problem-pretty"),
@@ -304,7 +305,7 @@ function startRankedRun(leagueId = state.selectedLeague) {
   startRun("ranked", leagueId);
 }
 
-function finishRun() {
+function finishRun(endedEarly = false) {
   const league = getLeague(state.run.leagueId);
   const finalScore = state.run.score;
   const completed = {
@@ -315,6 +316,7 @@ function finishRun() {
     score: finalScore,
     solved: state.run.index,
     total: state.run.problemIds.length,
+    endedEarly,
     completedAt: new Date().toISOString(),
     durationMs: Date.now() - state.run.startedAt
   };
@@ -332,11 +334,22 @@ function finishRun() {
   state.run = blankRun();
   state.profile.activeRun = null;
   saveActiveProfile();
-  setFeedback(`${completed.mode === "ranked" ? "Ranked run" : "Practice set"} complete: ${finalScore} points in ${formatClock(completed.durationMs)}.`, true);
+  setFeedback(
+    `${completed.mode === "ranked" ? "Ranked run" : "Practice set"} ${endedEarly ? "ended" : "complete"}: ${finalScore} points, ${completed.solved}/${completed.total} solved in ${formatClock(completed.durationMs)}.`,
+    true
+  );
   renderProblem();
   renderStats();
   renderLeagues();
   renderLeagueDetail();
+}
+
+function endCurrentRun() {
+  if (!state.run.problemIds.length) {
+    setFeedback("No active run to end.", false);
+    return;
+  }
+  finishRun(true);
 }
 
 function handleAnswer(event) {
@@ -528,7 +541,7 @@ function renderLeagueDetail() {
                       <div class="leaderboard-row">
                         <span>${new Date(run.completedAt).toLocaleDateString()}</span>
                         <strong>${run.score}</strong>
-                        <small>${run.solved}/${run.total}</small>
+                        <small>${run.solved}/${run.total}${run.endedEarly ? " ended" : ""}</small>
                       </div>
                     `
                   )
@@ -893,6 +906,7 @@ function bindEvents() {
   elements.unlockEuler.addEventListener("click", unlockEuler);
   elements.practiceStart.addEventListener("click", startPractice);
   elements.rankedStart.addEventListener("click", () => startRankedRun());
+  elements.endRun.addEventListener("click", endCurrentRun);
   elements.answerForm.addEventListener("submit", handleAnswer);
   elements.hintButton.addEventListener("click", showHint);
   elements.resetProfile.addEventListener("click", resetProgress);

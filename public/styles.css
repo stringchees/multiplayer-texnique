@@ -213,6 +213,7 @@ p {
 
 .primary-action,
 .secondary-action,
+.danger-action,
 .text-action {
   min-height: 44px;
   border-radius: 8px;
@@ -235,6 +236,13 @@ p {
   color: var(--ink);
   background: var(--paper);
   border: 1px solid var(--line);
+}
+
+.danger-action {
+  padding: 0 16px;
+  color: var(--bad);
+  background: #fff7f4;
+  border: 1px solid #e6beb4;
 }
 
 .text-action {

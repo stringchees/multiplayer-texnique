@@ -21,11 +21,21 @@ The hosted GitHub Pages app is static and uses browser storage for login/progres
 - Euclid League
 - Euler Circle, locked by password
 
-Default Euler Circle password for this build:
+Euler Circle password for this build:
 
 ```text
-euler1736
+eulercircle
 ```
+
+## Live Multiplayer
+
+Live 1v1 and group rooms work when the local Node server is running:
+
+```sh
+npm start
+```
+
+Open the served URL, sign in, use the Multiplayer tab, and share the room code. GitHub Pages is static, so it can host practice, login, progress, league leaderboards, and the database, but it cannot run the live room server by itself.
 
 ## Deploy To GitHub Pages
 

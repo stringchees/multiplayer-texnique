@@ -328,6 +328,62 @@
       add(output, 6, "Euler Circle", title, pretty, answer, [], "Type the full theorem fragment.");
     });
 
+    const hardIdentities = [
+      ["atiyah singer", "index D equals integral Ahat ch E", "\\operatorname{ind}(D_E)=\\int_M\\widehat{A}(TM)\\operatorname{ch}(E)"],
+      ["serre duality", "Ext duality", "\\operatorname{Ext}^i_X(\\mathcal{F},\\omega_X)\\cong H^{n-i}(X,\\mathcal{F})^\\vee"],
+      ["grothendieck riemann roch", "GRR formula", "\\operatorname{ch}(Rf_!E)\\operatorname{Td}(Y)=f_*(\\operatorname{ch}(E)\\operatorname{Td}(X))"],
+      ["ito formula", "Ito differential formula", "df(X_t)=f'(X_t)\\,dX_t+\\frac12 f''(X_t)\\,d\\langle X\\rangle_t"],
+      ["black scholes pde", "Black Scholes PDE", "\\partial_t V+\\frac12\\sigma^2S^2\\partial_{SS}V+rS\\partial_SV-rV=0"],
+      ["hamilton jacobi", "Hamilton Jacobi equation", "\\partial_t S+H(q,\\partial_q S,t)=0"],
+      ["einstein equation", "Einstein field equation", "R_{\\mu\\nu}-\\frac12Rg_{\\mu\\nu}+\\Lambda g_{\\mu\\nu}=\\frac{8\\pi G}{c^4}T_{\\mu\\nu}"],
+      ["yang mills", "Yang Mills equation", "D_A^*F_A=0"],
+      ["chern simons", "Chern Simons functional", "\\operatorname{CS}(A)=\\frac{k}{4\\pi}\\int_M\\operatorname{tr}\\left(A\\wedge dA+\\frac23A\\wedge A\\wedge A\\right)"],
+      ["partition function", "path integral partition function", "Z=\\int\\mathcal{D}\\phi\\,e^{-S[\\phi]/\\hbar}"],
+      ["kunneth", "Kunneth formula fragment", "H^n(X\\times Y)\\cong\\bigoplus_{p+q=n}H^p(X)\\otimes H^q(Y)"],
+      ["universal coefficient", "universal coefficient sequence", "0\\to H_n(X)\\otimes G\\to H_n(X;G)\\to\\operatorname{Tor}(H_{n-1}(X),G)\\to0"],
+      ["adjunction", "category adjunction", "\\operatorname{Hom}_{\\mathcal{D}}(F X,Y)\\cong\\operatorname{Hom}_{\\mathcal{C}}(X,G Y)"],
+      ["kan extension", "left Kan extension", "(\\operatorname{Lan}_K F)(d)=\\operatorname*{colim}_{(K\\downarrow d)}F"],
+      ["bar construction", "bar differential", "d(a_0|\\cdots|a_n)=\\sum_i(-1)^i(a_0|\\cdots|a_ia_{i+1}|\\cdots|a_n)"],
+      ["maurer cartan", "Maurer Cartan equation", "d\\omega+\\frac12[\\omega,\\omega]=0"],
+      ["bch", "Baker Campbell Hausdorff", "\\log(e^Xe^Y)=X+Y+\\frac12[X,Y]+\\frac1{12}[X,[X,Y]]-\\frac1{12}[Y,[X,Y]]"],
+      ["sobolev embedding", "Sobolev embedding", "W^{k,p}(\\Omega)\\hookrightarrow C^{m,\\alpha}(\\overline{\\Omega})"],
+      ["holder inequality", "Holder inequality", "\\lVert fg\\rVert_1\\leq\\lVert f\\rVert_p\\lVert g\\rVert_q"],
+      ["minkowski inequality", "Minkowski inequality", "\\left(\\int|f+g|^p\\right)^{1/p}\\leq\\left(\\int|f|^p\\right)^{1/p}+\\left(\\int|g|^p\\right)^{1/p}"]
+    ];
+    hardIdentities.forEach(([title, pretty, answer]) => {
+      add(output, 6, "Euler Circle", title, pretty, answer, [], "Type the full advanced identity.");
+    });
+
+    const spectralPages = [
+      ["E_1", "d_1", "E_2"],
+      ["E_2", "d_2", "E_3"],
+      ["E_r", "d_r", "E_{r+1}"],
+      ["{}'E_2", "{}'d_2", "{}'E_3"]
+    ];
+    spectralPages.forEach(([page, diff, next], index) => {
+      add(output, 6, "Spectral Sequences", `spectral differential ${index + 1}`, `${diff} page differential`, `${diff}^{p,q}:${page}^{p,q}\\to ${page}^{p+${index + 1},q-${index}}`, [], "Use a differential with bidegree source and target.");
+      add(output, 6, "Spectral Sequences", `page quotient ${index + 1}`, `${next} as homology of ${page}`, `${next}^{p,q}=\\ker ${diff}^{p,q}/\\operatorname{im}${diff}^{p-${index + 1},q+${index}}`, [], "Write the page as kernel modulo image.");
+    });
+
+    const schemes = ["X", "Y", "\\operatorname{Spec}A", "\\mathbb{P}^n_k", "\\mathcal{X}"];
+    schemes.forEach((scheme, index) => {
+      add(output, 6, "Algebraic Geometry", `derived global sections ${index + 1}`, `R Gamma of ${scheme}`, "R\\Gamma(" + scheme + ",\\mathcal{F})", [], "Use R Gamma with a sheaf argument.");
+      add(output, 6, "Algebraic Geometry", `cotangent complex ${index + 1}`, `cotangent complex ${scheme}`, "\\mathbb{L}_{" + scheme + "/k}", [], "Use blackboard L with a relative subscript.");
+      add(output, 6, "Algebraic Geometry", `derived pushforward ${index + 1}`, `R f star on ${scheme}`, "R f_*\\mathcal{O}_{" + scheme + "}", [], "Use derived pushforward notation.");
+      add(output, 6, "Algebraic Geometry", `picard group ${index + 1}`, `Pic of ${scheme}`, "\\operatorname{Pic}(" + scheme + ")", [], "Use operatorname Pic.");
+    });
+
+    const weakForms = [
+      ["stokes weak", "Navier Stokes weak form", "\\int_\\Omega \\partial_tu\\cdot v\\,dx+\\int_\\Omega (u\\cdot\\nabla)u\\cdot v\\,dx+\\nu\\int_\\Omega\\nabla u:\\nabla v\\,dx=\\int_\\Omega f\\cdot v\\,dx"],
+      ["maxwell weak", "Maxwell weak curl form", "\\int_\\Omega \\mu^{-1}\\nabla\\times E\\cdot\\nabla\\times F\\,dx-\\omega^2\\int_\\Omega\\varepsilon E\\cdot F\\,dx=0"],
+      ["allen cahn weak", "Allen Cahn weak form", "\\int_\\Omega u_t v\\,dx+\\varepsilon\\int_\\Omega\\nabla u\\cdot\\nabla v\\,dx+\\frac1\\varepsilon\\int_\\Omega f'(u)v\\,dx=0"],
+      ["monge ampere", "Monge Ampere equation", "\\det D^2u=f"],
+      ["ricci flow", "Ricci flow", "\\partial_t g_{ij}=-2R_{ij}"]
+    ];
+    weakForms.forEach(([title, pretty, answer]) => {
+      add(output, 6, "Differential Equations", title, pretty, answer, [], "Type the full weak or geometric PDE notation.");
+    });
+
     return output;
   }
 

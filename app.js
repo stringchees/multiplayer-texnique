@@ -360,7 +360,7 @@ function handleAnswer(event) {
   } else {
     state.run.streak = 0;
     state.run.score = Math.max(0, state.run.score - 25);
-    setFeedback(`Incorrect. ${problem.hint}`, false);
+    setFeedback(state.run.mode === "ranked" ? "Incorrect. No hints are shown during ranked runs." : `Incorrect. ${problem.hint}`, false);
   }
 
   elements.answerInput.value = "";
@@ -644,6 +644,10 @@ function unlockEuler() {
 
 function showHint() {
   const problem = activeProblem();
+  if (problem && state.run.mode === "ranked") {
+    setFeedback("Hints are disabled during ranked runs.", false);
+    return;
+  }
   setFeedback(problem ? problem.hint : "Start a run first.", Boolean(problem));
 }
 

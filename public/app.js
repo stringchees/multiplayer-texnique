@@ -86,6 +86,7 @@ const elements = {
   multiFeedback: document.querySelector("#multi-feedback"),
   roomName: document.querySelector("#room-name"),
   roomCode: document.querySelector("#room-code"),
+  newRoomCode: document.querySelector("#new-room-code"),
   joinRoom: document.querySelector("#join-room"),
   startRoom: document.querySelector("#start-room"),
   roomList: document.querySelector("#room-list")
@@ -233,6 +234,11 @@ function logout() {
   state.activeUser = null;
   state.profile = null;
   state.run = blankRun();
+  elements.roomCode.value = "";
+  elements.roomName.value = "";
+  elements.loginPassword.value = "";
+  elements.loginMessage.textContent = "Your profile is saved in this browser.";
+  setTab("practice");
   showScreen("landing-screen");
 }
 
@@ -295,6 +301,7 @@ function startRun(mode, leagueId = state.selectedLeague) {
   saveActiveProfile();
   renderProblem();
   renderStats();
+  renderRunControls();
 }
 
 function startPractice() {
@@ -342,6 +349,7 @@ function finishRun(endedEarly = false) {
   renderStats();
   renderLeagues();
   renderLeagueDetail();
+  renderRunControls();
 }
 
 function endCurrentRun() {
@@ -380,6 +388,7 @@ function handleAnswer(event) {
   saveActiveProfile();
   renderProblem();
   renderStats();
+  renderRunControls();
 }
 
 function activeProblem() {
@@ -415,6 +424,14 @@ function renderStats() {
   elements.streakValue.textContent = state.run.streak;
   elements.bestValue.textContent = state.profile ? state.profile.bestScore || 0 : 0;
   elements.bankCount.textContent = problems.length;
+}
+
+function renderRunControls() {
+  const hasActiveRun = state.run.problemIds.length > 0;
+  elements.endRun.classList.toggle("is-hidden", !hasActiveRun);
+  elements.endRun.disabled = !hasActiveRun;
+  elements.practiceStart.disabled = hasActiveRun;
+  elements.rankedStart.disabled = hasActiveRun;
 }
 
 function renderLeagueSelect() {
@@ -614,9 +631,11 @@ function renderDatabase() {
 function renderApp() {
   elements.activeUser.textContent = state.activeUser || "Guest";
   elements.roomName.value = state.activeUser || "";
+  ensureRoomCode();
   renderLeagueSelect();
   renderProblem();
   renderStats();
+  renderRunControls();
   renderLeagues();
   renderLeagueDetail();
   renderDatabaseOptions();
@@ -639,6 +658,9 @@ function setMultiFeedback(message, good) {
 function setTab(tab) {
   elements.tabButtons.forEach((button) => button.classList.toggle("is-active", button.dataset.tab === tab));
   elements.panels.forEach((panel) => panel.classList.toggle("is-active", panel.id === `${tab}-panel`));
+  if (tab === "multiplayer") {
+    ensureRoomCode();
+  }
 }
 
 function unlockEuler() {
@@ -703,6 +725,20 @@ function randomRoomCode() {
   return Array.from({ length: 5 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
 }
 
+function ensureRoomCode() {
+  if (!state.roomCode && !elements.roomCode.value.trim()) {
+    elements.roomCode.value = randomRoomCode();
+  }
+}
+
+function generateRoomCode() {
+  closeRoom();
+  const code = randomRoomCode();
+  elements.roomCode.value = code;
+  setMultiFeedback(`Generated room ${code}. Share it before joining.`, true);
+  renderRoom();
+}
+
 async function joinRoom() {
   const league = currentLeague();
   if (!isLeagueUnlocked(league)) {
@@ -710,7 +746,8 @@ async function joinRoom() {
     return;
   }
 
-  const code = elements.roomCode.value.trim().toUpperCase() || randomRoomCode();
+  ensureRoomCode();
+  const code = elements.roomCode.value.trim().toUpperCase();
   const name = elements.roomName.value.trim() || state.activeUser || "Player";
   try {
     const response = await fetch(`api/rooms/${code}/join`, {
@@ -902,6 +939,7 @@ function bindEvents() {
     renderLockPanel();
     renderProblem();
     renderStats();
+    renderRunControls();
   });
   elements.unlockEuler.addEventListener("click", unlockEuler);
   elements.practiceStart.addEventListener("click", startPractice);
@@ -912,6 +950,7 @@ function bindEvents() {
   elements.resetProfile.addEventListener("click", resetProgress);
   elements.problemSearch.addEventListener("input", renderDatabase);
   elements.categoryFilter.addEventListener("change", renderDatabase);
+  elements.newRoomCode.addEventListener("click", generateRoomCode);
   elements.joinRoom.addEventListener("click", joinRoom);
   elements.startRoom.addEventListener("click", startRoom);
   elements.multiAnswerForm.addEventListener("submit", submitRoomAnswer);

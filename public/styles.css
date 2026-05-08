@@ -392,6 +392,23 @@ button:disabled {
   width: 124px;
 }
 
+.answer-preview {
+  min-height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: #fffefa;
+}
+
+.answer-preview mjx-container {
+  margin: 0;
+}
+
 .lock-panel {
   display: none;
   margin-top: 4px;

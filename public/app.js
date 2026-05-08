@@ -62,6 +62,7 @@ const elements = {
   problemSource: document.querySelector("#problem-source"),
   answerForm: document.querySelector("#answer-form"),
   answerInput: document.querySelector("#answer-input"),
+  answerPreview: document.querySelector("#answer-preview"),
   feedbackText: document.querySelector("#feedback-text"),
   hintButton: document.querySelector("#hint-button"),
   roundClock: document.querySelector("#round-clock"),
@@ -85,6 +86,7 @@ const elements = {
   multiSource: document.querySelector("#multi-source"),
   multiAnswerForm: document.querySelector("#multi-answer-form"),
   multiAnswerInput: document.querySelector("#multi-answer-input"),
+  multiAnswerPreview: document.querySelector("#multi-answer-preview"),
   multiFeedback: document.querySelector("#multi-feedback"),
   roomName: document.querySelector("#room-name"),
   roomCode: document.querySelector("#room-code"),
@@ -425,6 +427,7 @@ function handleAnswer(event) {
     setFeedback("Correct.", true);
     if (state.run.index >= state.run.problemIds.length) {
       elements.answerInput.value = "";
+      renderInputPreview(elements.answerInput, elements.answerPreview);
       finishRun();
       return;
     }
@@ -437,6 +440,7 @@ function handleAnswer(event) {
       state.run.skipped = (state.run.skipped || 0) + 1;
       state.run.currentMisses = 0;
       elements.answerInput.value = "";
+      renderInputPreview(elements.answerInput, elements.answerPreview);
       if (state.run.index >= state.run.problemIds.length) {
         finishRun();
         return;
@@ -458,6 +462,7 @@ function handleAnswer(event) {
   }
 
   elements.answerInput.value = "";
+  renderInputPreview(elements.answerInput, elements.answerPreview);
   saveActiveProfile();
   renderProblem();
   renderStats();
@@ -484,6 +489,17 @@ function queueTypeset(elementsToRender) {
   mathJax.typesetPromise(elementsToRender).catch(() => {});
 }
 
+function renderInputPreview(input, preview) {
+  const tex = input.value.trim();
+  preview.classList.toggle("is-hidden", !tex);
+  if (!tex) {
+    preview.textContent = "";
+    return;
+  }
+  preview.textContent = mathText(tex);
+  queueTypeset([preview]);
+}
+
 function renderProblem() {
   const problem = activeProblem();
   const league = state.run.leagueId === "mixed" ? null : getLeague(state.run.leagueId || state.selectedLeague);
@@ -502,6 +518,7 @@ function renderProblem() {
     elements.problemSource.textContent = "";
     elements.answerInput.placeholder = "Type TeX";
   }
+  renderInputPreview(elements.answerInput, elements.answerPreview);
 
   elements.runProgress.textContent = `${state.run.mode === "ranked" ? "ranked" : "practice"} · ${state.run.index}/${state.run.problemIds.length}`;
   queueTypeset([elements.problemPretty]);
@@ -929,6 +946,7 @@ async function submitRoomAnswer(event) {
     const result = await response.json();
     setMultiFeedback(result.correct ? "Correct." : `Incorrect. ${problem.hint}`, Boolean(result.correct));
     elements.multiAnswerInput.value = "";
+    renderInputPreview(elements.multiAnswerInput, elements.multiAnswerPreview);
   } catch {
     setMultiFeedback("Could not submit to the live room.", false);
   }
@@ -987,6 +1005,7 @@ function renderRoom() {
     elements.multiPrompt.textContent = "Players in the room will appear below.";
     elements.multiSource.textContent = "";
   }
+  renderInputPreview(elements.multiAnswerInput, elements.multiAnswerPreview);
   queueTypeset([elements.multiPretty]);
 
   elements.roomList.innerHTML = state.room.players
@@ -1037,6 +1056,7 @@ function bindEvents() {
   elements.rankedStart.addEventListener("click", () => startRankedRun());
   elements.endRun.addEventListener("click", endCurrentRun);
   elements.answerForm.addEventListener("submit", handleAnswer);
+  elements.answerInput.addEventListener("input", () => renderInputPreview(elements.answerInput, elements.answerPreview));
   elements.hintButton.addEventListener("click", showHint);
   elements.resetProfile.addEventListener("click", resetProgress);
   elements.problemSearch.addEventListener("input", renderDatabase);
@@ -1045,6 +1065,9 @@ function bindEvents() {
   elements.joinRoom.addEventListener("click", joinRoom);
   elements.startRoom.addEventListener("click", startRoom);
   elements.multiAnswerForm.addEventListener("submit", submitRoomAnswer);
+  elements.multiAnswerInput.addEventListener("input", () =>
+    renderInputPreview(elements.multiAnswerInput, elements.multiAnswerPreview)
+  );
   window.addEventListener("beforeunload", saveActiveProfile);
 }
 

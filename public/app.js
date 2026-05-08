@@ -470,7 +470,7 @@ function renderProblem() {
     elements.problemPretty.textContent = mathText(problem.answer);
     elements.problemPrompt.textContent = "";
     elements.problemSource.textContent = "";
-    elements.answerInput.placeholder = state.run.mode === "ranked" ? "Type TeX" : problem.answer;
+    elements.answerInput.placeholder = "Type TeX";
   }
 
   elements.runProgress.textContent = `${state.run.mode === "ranked" ? "ranked" : "practice"} · ${state.run.index}/${state.run.problemIds.length}`;
@@ -947,7 +947,7 @@ function renderRoom() {
     elements.multiPretty.textContent = mathText(problem.answer);
     elements.multiPrompt.textContent = `${problem.title}. Tier ${problem.tier}.`;
     elements.multiSource.textContent = `Expected notation family: ${problem.category}`;
-    elements.multiAnswerInput.placeholder = problem.answer;
+    elements.multiAnswerInput.placeholder = "Type TeX";
   } else if (state.room.phase === "finished") {
     elements.multiPretty.textContent = "Race complete.";
     elements.multiPrompt.textContent = "Start another race with the same room.";

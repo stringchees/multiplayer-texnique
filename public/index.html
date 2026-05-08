@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TeXnique Leagues</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="site-shell">
+      <section class="screen landing-screen is-active" id="landing-screen" aria-label="Landing">
+        <div class="landing-copy">
+          <p class="eyebrow">TeXnique Leagues</p>
+          <h1>Practice hard TeX notation by league.</h1>
+          <p class="lead">Work through Leibniz, Gauss, Galois, Newton, Euclid, and the locked Euler Circle problem sets.</p>
+          <div class="landing-actions">
+            <button class="primary-action" id="show-login" type="button">Log In</button>
+            <button class="secondary-action" id="guest-start" type="button">Continue As Guest</button>
+          </div>
+        </div>
+        <div class="landing-board" aria-hidden="true">
+          <span>\int_{\partial M}\omega=\int_M d\omega</span>
+          <span>E_2^{p,q}\Rightarrow H^{p+q}</span>
+          <span>\zeta(s)=\prod_p(1-p^{-s})^{-1}</span>
+        </div>
+      </section>
+
+      <section class="screen login-screen" id="login-screen" aria-label="Login">
+        <form class="login-card" id="login-form">
+          <button class="text-action" id="back-to-landing" type="button">Back</button>
+          <p class="eyebrow">Account</p>
+          <h2>Log in or create a local account.</h2>
+          <label for="login-name">Username</label>
+          <input id="login-name" type="text" autocomplete="username" minlength="2" maxlength="24" required />
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password" minlength="4" required />
+          <button class="primary-action" type="submit">Enter</button>
+          <p id="login-message" class="status-text">Your profile is saved in this browser.</p>
+        </form>
+      </section>
+
+      <section class="screen app-screen" id="app-screen" aria-label="Practice app">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Signed in as <span id="active-user">Guest</span></p>
+            <h1>TeXnique Leagues</h1>
+          </div>
+          <nav class="tabs" aria-label="Sections">
+            <button class="tab-button is-active" data-tab="practice" type="button">Practice</button>
+            <button class="tab-button" data-tab="leagues" type="button">Leagues</button>
+            <button class="tab-button" data-tab="database" type="button">Database</button>
+          </nav>
+        </header>
+
+        <section class="tab-panel is-active" id="practice-panel">
+          <div class="practice-layout">
+            <section class="practice-main">
+              <div class="practice-head">
+                <div>
+                  <p class="eyebrow" id="league-label">Leibniz League</p>
+                  <h2 id="problem-title">Start a run</h2>
+                </div>
+                <div class="clock">
+                  <span id="round-clock">00:00</span>
+                  <small id="run-progress">0/0</small>
+                </div>
+              </div>
+              <div class="problem-card">
+                <div id="problem-pretty" class="problem-pretty">Choose a league, then start practice.</div>
+                <p id="problem-prompt">The prompt appears here.</p>
+              </div>
+              <form class="answer-row" id="answer-form">
+                <input id="answer-input" type="text" autocomplete="off" spellcheck="false" placeholder="Type TeX" />
+                <button class="primary-action" type="submit">Submit</button>
+              </form>
+              <p class="status-text" id="feedback-text">Spaces and \left/\right are ignored.</p>
+            </section>
+
+            <aside class="side-panel">
+              <label for="league-select">League</label>
+              <select id="league-select"></select>
+              <div class="lock-panel" id="lock-panel">
+                <label for="euler-password">Euler Circle Password</label>
+                <div class="inline-row">
+                  <input id="euler-password" type="password" placeholder="Required" />
+                  <button class="secondary-action" id="unlock-euler" type="button">Unlock</button>
+                </div>
+              </div>
+              <button class="primary-action wide" id="practice-start" type="button">Start Practice Run</button>
+              <button class="secondary-action wide" id="hint-button" type="button">Hint</button>
+              <div class="stats-list">
+                <div><span>Score</span><strong id="score-value">0</strong></div>
+                <div><span>Streak</span><strong id="streak-value">0</strong></div>
+                <div><span>Best</span><strong id="best-value">0</strong></div>
+                <div><span>Bank</span><strong id="bank-count">0</strong></div>
+              </div>
+              <button class="text-action" id="logout-button" type="button">Log Out</button>
+            </aside>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="leagues-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Ladder</p>
+              <h2>Leagues</h2>
+            </div>
+            <button class="secondary-action" id="reset-profile" type="button">Reset Progress</button>
+          </div>
+          <div class="league-grid" id="league-grid"></div>
+        </section>
+
+        <section class="tab-panel" id="database-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Problem Database</p>
+              <h2>Search Problems</h2>
+            </div>
+            <div class="database-tools">
+              <input id="problem-search" type="search" placeholder="Search TeX, category, or prompt" />
+              <select id="category-filter">
+                <option value="all">All categories</option>
+              </select>
+            </div>
+          </div>
+          <div class="database-list" id="database-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="problem-bank.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
